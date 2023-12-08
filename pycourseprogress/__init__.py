@@ -7,6 +7,7 @@ from .member import Member
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class CourseProgress:
     """The main Course Progress API."""
 
@@ -39,7 +40,6 @@ class CourseProgress:
     async def create(cls, instance: str, username: str, password: str):
         """Creates an instance of Course Progress."""
         self = cls(instance)
-        await self._api.login(username=username,
-                              password=password)
+        await self._api.login(username=username, password=password)
         await self.update()
         return self

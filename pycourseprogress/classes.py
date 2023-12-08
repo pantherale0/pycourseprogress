@@ -9,6 +9,7 @@ from .api import CourseProgressSession
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class Class:
     """A single class for Course Progress."""
 
@@ -43,9 +44,7 @@ class Class:
         """Update the local data."""
         _LOGGER.debug("Updating data for class %s", self.class_id)
         response = await self._api.send_http_request(
-            endpoint="get_class",
-            MEMBER_ID=str(self.member_id),
-            CLASS_ID=str(self.class_id)
+            endpoint="get_class", MEMBER_ID=str(self.member_id), CLASS_ID=str(self.class_id)
         )
         response = response["response"]["content"]
         self.class_id = response["class_id"]
@@ -58,43 +57,31 @@ class Class:
         self.discount_id = response["discount_id"]
         self.progress = response["assessment"]
         with suppress(TypeError):
-            self.last_assessment = datetime.strptime(
-                response["last_assessment"], "%Y-%m-%d %H:%M:%S"
-            )
+            self.last_assessment = datetime.strptime(response["last_assessment"], "%Y-%m-%d %H:%M:%S")
         self.sessions = response["sessions"]
         self.membership_id = response["membership_id"]
         self.member_membership_id = response["member_membership_id"]
         self.move = response["move"]
         with suppress(TypeError):
-            self.move_date = datetime.strptime(
-                response["move_date"], "%Y-%m-%d %H:%M:%S"
-            )
+            self.move_date = datetime.strptime(response["move_date"], "%Y-%m-%d %H:%M:%S")
         self.portal_move = response["portal_move"]
         self.class_name = response["class_name"]
         self.class_date = response["class_date"]
         self.course_name = class_history_data["course_name"]
         with suppress(TypeError):
-            self.started = datetime.strptime(
-                class_history_data["started"], "%Y-%m-%d %H:%M:%S"
-            )
+            self.started = datetime.strptime(class_history_data["started"], "%Y-%m-%d %H:%M:%S")
         with suppress(TypeError):
-            self.finished = datetime.strptime(
-                class_history_data["finished"], "%Y-%m-%d %H:%M:%S"
-            )
+            self.finished = datetime.strptime(class_history_data["finished"], "%Y-%m-%d %H:%M:%S")
 
         # retrieve sessions.
         response = await self._api.send_http_request(
-            endpoint="get_sessions",
-            MEMBER_ID=str(self.member_id),
-            CLASS_ID=str(self.class_id)
+            endpoint="get_sessions", MEMBER_ID=str(self.member_id), CLASS_ID=str(self.class_id)
         )
         self.sessions = response["response"]["content"]
 
         # retrieve competencies
         response = await self._api.send_http_request(
-            endpoint="get_competencies",
-            MEMBER_ID=str(self.member_id),
-            CLASS_ID=str(self.class_id)
+            endpoint="get_competencies", MEMBER_ID=str(self.member_id), CLASS_ID=str(self.class_id)
         )
         self.competencies = response["response"]["content"]
 

@@ -1,11 +1,11 @@
 """A testing and example script."""
 
-
 import logging
 import asyncio
 from pycourseprogress import CourseProgress
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def main():
     """Running function"""
@@ -26,6 +26,7 @@ async def main():
         await asyncio.sleep(15)
         _LOGGER.debug("pong")
         await control.update()
+
 
 if __name__ == "__main__":
     logging.basicConfig(
