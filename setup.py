@@ -31,7 +31,7 @@ DEV_REQUIREMENTS = [
 ]
 
 setuptools.setup(
-    name='Course Progress API',
+    name='pycourseprogress',
     version=version,
     description='An integration for Course Progress sites.',
     long_description=long_description,
