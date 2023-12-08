@@ -2,7 +2,7 @@
 
 import logging
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import aiohttp
 import jwt
@@ -10,6 +10,7 @@ import jwt
 from .const import (
     BASE_URL, ENDPOINT_MAP
 )
+from .exceptions import HttpException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,6 +23,11 @@ class CourseProgressSession:
         self._refresh_token = ""
         self._access_token = ""
         self._expires_at: datetime = None
+
+    @property
+    def get_available_member_ids(self) -> list[int]:
+        """Returns a list of valid member IDs from the access token."""
+        return self._decode_jwt(self._access_token)["children"]
 
     def _decode_jwt(self, token: str):
         """Decode the JWT into a dict."""
@@ -87,16 +93,20 @@ class CourseProgressSession:
 
         if self._expires_at is not None:
             if datetime.now() > self._expires_at and not refresh_token:
+                _LOGGER.debug("Access token expired, refreshing.")
                 self._refresh_access_token()
 
         headers = self._headers(refresh_token)
         if endpoint.upper() == "LOGIN":
             headers = None
 
+        _LOGGER.debug("Built URL %s",
+                      self._base_url + request_endpoint.get("endpoint").format(**kwargs))
+
         async with aiohttp.ClientSession() as session:
             async with session.request(
                 method=request_endpoint.get("method", "GET"),
-                url=self._base_url + request_endpoint.get("endpoint").format(kwargs),
+                url=self._base_url + request_endpoint.get("endpoint").format(**kwargs),
                 headers=headers,
                 json=body
             ) as response:
@@ -104,17 +114,12 @@ class CourseProgressSession:
                     "status": response.status,
                     "response": {}
                 }
-                if response.status == 400:
-                    raise Exception("TODO")
-                if response.status == 401:
-                    raise Exception("TODO")
-                if response.status == 403:
-                    raise Exception("TODO")
-                if response.status == 404:
-                    raise Exception("TODO")
+                _LOGGER.debug("Got return code %s", response.status)
+                if response.status >= 400:
+                    raise HttpException(response.status, await response.text())
                 if response.status == 204:
                     return output
                 if response.status >= 200 or response.status < 204:
                     output["response"] = await response.json()
                     return output
-                raise Exception("UNDEFINED")
+                return output
