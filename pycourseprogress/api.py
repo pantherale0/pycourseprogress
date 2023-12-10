@@ -77,7 +77,7 @@ class CourseProgressSession:
         if self._expires_at is not None:
             if datetime.now() > self._expires_at and not refresh_token:
                 _LOGGER.debug("Access token expired, refreshing.")
-                self._refresh_access_token()
+                await self._refresh_access_token()
 
         headers = self._headers(refresh_token)
         if endpoint.upper() == "LOGIN":
